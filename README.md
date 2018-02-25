@@ -8,6 +8,7 @@ autoclick
 ```
 
 Or stop after _n_ seconds (_n_ must bigger than 0):
+
 __Example__: stop after 10 seconds.
 ```sh
 autoclick 10
