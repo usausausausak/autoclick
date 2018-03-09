@@ -5,7 +5,6 @@ authors = ["usausausausak"]
 
 [dependencies]
 failure = "0.1"
-failure_derive = "0.1"
 
 [dependencies.xcb]
 version = "0.8"

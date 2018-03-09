@@ -1,33 +1,11 @@
 extern crate xcb;
 extern crate failure;
-#[macro_use]
-extern crate failure_derive;
 
 use std::{env, time, thread};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-#[derive(Debug, Fail)]
-enum XError {
-    #[fail(display = "query root error")]
-    RootError,
-    #[fail(display = "connect error: {}", _0)]
-    ConnectError(xcb::ConnError),
-    #[fail(display = "xcb error: {}", _0)]
-    GenericError(xcb::GenericError),
-}
-
-impl From<xcb::ConnError> for XError {
-    fn from(cause: xcb::ConnError) -> Self {
-        XError::ConnectError(cause)
-    }
-}
-
-impl From<xcb::GenericError> for XError {
-    fn from(cause: xcb::GenericError) -> Self {
-        XError::GenericError(cause)
-    }
-}
+use failure::{Error, err_msg};
 
 const CLICK_DELAY: u64 = 300;
 const STOP_THRESHOLD: i16 = 30;
@@ -49,11 +27,11 @@ fn pointer_position(conn: &xcb::Connection, root: xcb::Window)
     cookie.get_reply().map(|r| (r.root_x(), r.root_y()))
 }
 
-fn auto_click(running: &Arc<AtomicBool>) -> Result<u64, XError> {
+fn auto_click(running: &Arc<AtomicBool>) -> Result<u64, Error> {
     let (conn, _) = xcb::Connection::connect(None)?;
 
     let root = conn.get_setup().roots()
-                               .next().ok_or(XError::RootError)?
+                               .next().ok_or(err_msg("query root error"))?
                                .root();
 
     let pointer_start = pointer_position(&conn, root)?;
